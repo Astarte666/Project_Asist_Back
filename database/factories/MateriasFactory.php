@@ -18,6 +18,7 @@ class MateriasFactory extends Factory
     public function definition(): array
     {
         return [
+
             'carreNombre' => $this->faker->unique()->words(2, true),
             'carreras_id' => Carreras::factory(),
         ];

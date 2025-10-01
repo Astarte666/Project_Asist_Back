@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('materias', function (Blueprint $table) {
-            $table->id('materias_id');
-            $table->string('matNombre');
-            $table->foreignId('carreras_id')->constrained()->onDelete('cascade');
+        Schema::create('asistencias', function (Blueprint $table) {
+            $table->id();
+            /*             $table->foreignId('user_id');
+            $table->foreignId('clase_id'); */
+            $table->boolean('presente')->default(false);
+            $table->text('observacion')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('materias');
+        Schema::dropIfExists('asistencias');
     }
 };
