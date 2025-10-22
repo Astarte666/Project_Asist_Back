@@ -13,11 +13,23 @@ return new class extends Migration
     {
         Schema::create('asistencias', function (Blueprint $table) {
             $table->id();
-            /*             $table->foreignId('user_id');
-            $table->foreignId('clase_id'); */
+            $table->unsignedBigInteger('clase_id');
+            $table->unsignedBigInteger('user_id');
             $table->boolean('presente')->default(false);
             $table->text('observacion')->nullable();
             $table->timestamps();
+            
+            $table->foreign('clase_id')
+                  ->references('id')
+                  ->on('clases')
+                  ->onDelete('cascade');
+                  
+            $table->foreign('user_id')
+                  ->references('id')
+                  ->on('users')
+                  ->onDelete('cascade');
+            
+            $table->unique(['clase_id', 'user_id']);
         });
     }
 

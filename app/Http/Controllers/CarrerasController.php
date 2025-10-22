@@ -13,14 +13,59 @@ class CarrerasController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            
         $carreras = Carreras::all();
-        return response()->json($carreras);
+
+        if ($carreras->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Todavía no hay carreras registradas.',
+                'data' => []
+            ], 200);
+        }
+
+        return response()->json([
+                'success' => true,
+                'message' => 'Listado de carreras obtenido correctamente.',
+                'data' => $carreras
+            ], 200);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las carreras.',
+                'data' => []
+            ], 500);
+        }
     }
 
     public function showConMaterias() {
-        
-        return Carreras::with('materias')->get();
+
+        try {
+            $carreras = Carreras::with('materias')->get();
+
+            if ($carreras->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Todavía no hay carreras registradas.',
+                    'data' => []
+                ], 200);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las carreras relacionadas con materias.',
+                'data' => []
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Listado de carreras relacionadas con materias obtenido correctamente.',
+            'data' => Carreras::with('materias')->get()
+        ], 200);
     }
 
 
@@ -38,14 +83,25 @@ class CarrerasController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try{ 
+
         $request->validate([
             'carreNombre' => 'required|string|max:255|unique:carreras,carreNombre',
         ]);
         $carreras = Carreras::create($request->all());
-        return response()->json($carreras, 201);
+        return response()->json([
+            'success' =>true,
+            'message' => 'Carrera creada correctamente.',
+            'data'=>$carreras
+        ], 201);
+    }catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al crear la carrera.',
+            'data' => []
+        ], 500);
     }
-
+    }
     /**
      * Display the specified resource.
      */
@@ -67,11 +123,22 @@ class CarrerasController extends Controller
      */
     public function update(Request $request, Carreras $id)
     {
-       $myCarrera = Carreras::find($id);
-        $myCarrera -> carreNombre = $request->carreNombre;
-        $myCarrera->save();
-        return response()->json($myCarrera);
-                
+        try{ 
+        $carreras = Carreras::find($id);
+        $carreras-> carreNombre = $request->carreNombre;
+        $carreras->save();
+        return response()->json([
+            'success'=>true,
+            'message'=> 'Carrera editada correctamente.',
+            'data'=>$carreras
+        ], 200);
+    }catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al editar la carrera.',
+            'data' => []
+        ], 500);
+    }
     }
 
     /**
@@ -79,7 +146,19 @@ class CarrerasController extends Controller
      */
     public function destroy($id)
     {
-        $myCarrera = Carreras::destroy($id);
-        return response()->json($myCarrera, 200);
+        try{
+        $carreras = Carreras::destroy($id);
+        return response()->json([
+            'success'=>true,
+            'message'=> 'Carrera eliminada correctamente.',
+            'data'=>$carreras
+        ], 200);
+    }catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al eliminar la carrera.',
+            'data' => []
+        ], 500);
+    }
     }
 }

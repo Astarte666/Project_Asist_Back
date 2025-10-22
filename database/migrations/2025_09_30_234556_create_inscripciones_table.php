@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('inscripciones', function (Blueprint $table) {
             $table->id();
-            /*             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('materia_id')->constrained()->onDelete('cascade'); */
-            $table->timestamp('fecha_inscripcion');
+            $table->unsignedBigInteger('user_id');
+            $table->date('fecha_inscripcion');
             $table->timestamps();
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unique(['user_id' ]);
         });
     }
 

@@ -9,9 +9,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasesController;
 use App\Http\Controllers\InscripcionesController;
 
-Route::get('/saludo', function (Request $request) {
-    return response()->json(['mensaje' => 'Hola Mundo']);
-});
+
 
 //REGISTRO
 Route::post('/register', [AuthController::class, 'register']);
@@ -19,34 +17,61 @@ Route::post('/register', [AuthController::class, 'register']);
 //LOGIN
 Route::post('/login', [AuthController::class, 'login']);
 
-//CARRERAS
-Route::get('/carreras', [CarrerasController::class, 'index']);
-Route::get('/showConMaterias', [CarrerasController::class, 'showConMaterias']);
-Route::post('/carreras', [CarrerasController::class, 'store']);
-Route::put('/carreras/{id}', [CarrerasController::class, 'update']);
-Route::delete('/carreras/{id}', [CarrerasController::class, 'destroy']);
+//RUTAS PROTEGIDAS (Requires Sanctum token)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-//MATERIAS
-Route::get('/materias', [MateriasController::class, 'index']);
-Route::get('showMateriasConCarreras', [MateriasController::class, 'showMateriasConCarreras']);
-Route::post('/materias', [MateriasController::class, 'store']);
-Route::put('/materias/{}', [MateriasController::class, 'update']);
-Route::delete('/materias/{id}', [MateriasController::class, 'destroy']);
+    //CARRERAS
+    Route::middleware('role:administrador')->group(function () {
+        Route::post('/carreras', [CarrerasController::class, 'store']);
+        Route::put('/carreras/{id}', [CarrerasController::class, 'update']);
+        Route::delete('/carreras/{id}', [CarrerasController::class, 'destroy']);
+    });
+    Route::middleware('role:administrador|profesor|estudiante')->group(function () {
+        Route::get('/carreras', [CarrerasController::class, 'index']);
+        Route::get('/showConMaterias', [CarrerasController::class, 'showConMaterias']);
+    });
 
-//INSCRIPCIONES
-Route::get('/inscripciones', [InscripcionesController::class, 'index']);
-Route::post('/inscripciones', [InscripcionesController::class, 'store']);
-Route::delete('/inscripciones/{id}', [InscripcionesController::class, 'destroy']);
-Route::put('/inscripciones/{id}', [InscripcionesController::class, 'update']);
+    //MATERIAS
+    Route::middleware('role:administrador')->group(function () {
+        Route::post('/materias', [MateriasController::class, 'store']);
+        Route::put('/materias/{id}', [MateriasController::class, 'update']);
+        Route::delete('/materias/{id}', [MateriasController::class, 'destroy']);
+    });
+    Route::middleware('role:administrador|estudiante|profesor')->group(function () {
+        Route::get('/materias', [MateriasController::class, 'index']);
+        Route::get('showMateriasConCarreras', [MateriasController::class, 'showMateriasConCarreras']);
+    });
 
-//CLASES
-Route::get('/clases', [ClasesController::class, 'index']);
-Route::post('/clases', [ClasesController::class, 'store']);
-Route::delete('/clases/{id}', [ClasesController::class, 'destroy']);
-Route::put('/clases/{id}', [ClasesController::class, 'update']);
+    //INSCRIPCIONES
+    Route::middleware('role:administrador|estudiante|profesor')->group(function () {
+        Route::get('/inscripciones', [InscripcionesController::class, 'index']);
+    });
+    Route::middleware('role:administrador')->group(function () {
+        Route::post('/inscripciones', [InscripcionesController::class, 'store']);
+        Route::delete('/inscripciones/{id}', [InscripcionesController::class, 'destroy']);
+    });
 
-//ASISTENCIAS
-Route::get('/asistencias', [AsistenciasController::class, 'index']);
-Route::post('/asistencias', [AsistenciasController::class, 'store']);
-Route::delete('/asistencias/{id}', [AsistenciasController::class, 'destroy']);
-Route::put('/asistencias/{id}', [AsistenciasController::class, 'update']);
+    //CLASES
+    Route::middleware('role:administrador|estudiante|profesor')->group(function () {
+        Route::get('/clases', [ClasesController::class, 'index']);
+    });
+    Route::middleware('role:administrador')->group(function () {
+        Route::post('/clases', [ClasesController::class, 'store']);
+        Route::delete('/clases/{id}', [ClasesController::class, 'destroy']);
+        Route::put('/clases/{id}', [ClasesController::class, 'update']);
+    });
+
+    //ASISTENCIAS
+    Route::middleware('role:administrador|estudiante|profesor')->group(function () {
+        Route::get('/asistencias', [AsistenciasController::class, 'index']);
+    });
+    Route::middleware('role:administrador')->group(function () {
+        Route::post('/asistencias', [AsistenciasController::class, 'store']);
+        Route::delete('/asistencias/{id}', [AsistenciasController::class, 'destroy']);
+        Route::put('/asistencias/{id}', [AsistenciasController::class, 'update']);
+    });
+});

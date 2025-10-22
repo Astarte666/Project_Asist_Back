@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Hash;
 
 class RoleSeeder extends Seeder
@@ -15,42 +16,63 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        // Create Permissions (if needed, but for this case, roles are enough)
-        // Example: Permission::create(['name' => 'create carreras']);
-        // Create Roles
+        
+        // Crear Roles
         $adminRole = Role::firstOrCreate(['name' => 'administrador']);
         $profesorRole = Role::firstOrCreate(['name' => 'profesor']);
         $estudianteRole = Role::firstOrCreate(['name' => 'estudiante']);
-        // Create Admin User
+
+        // Usuario admin
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'Admin User',
-                'password' => Hash::make('zxcvbnm1'), // Cambiar
-
+                'userApellido'  => 'Crack', 
+                'userNombre'    => 'Admin',
+                'userDocumento' => '10000000',
+                'userTelefono'  => '1111111111',
+                'userProvincia' => 'Ejemplo',
+                'userLocalidad' => 'Ejemplo',
+                'userDomicilio' => 'Ejemplo',
+                'password'      => Hash::make('zxcvbnm1'), 
             ]
         );
         $admin->assignRole('administrador');
+
+
         // Create an example Profesor user
         $profesor = User::firstOrCreate(
             ['email' => 'profesor@example.com'],
             [
-                'name' => 'Profesor User',
-                'password' => Hash::make('zxcvbnm1'),
+                'userApellido'  => 'Profe',
+                'userNombre'    => 'Pepe',
+                'userDocumento' => '20000000',
+                'userTelefono'  => '2222222222',
+                'userProvincia' => 'Ejemplo',
+                'userLocalidad' => 'Ejemplo',
+                'userDomicilio' => 'Ejemplo',
+                'password'      => Hash::make('zxcvbnm1'),
             ]
         );
         $profesor->assignRole('profesor');
+
+
         // Create an example Estudiante user
         $estudiante = User::firstOrCreate(
             ['email' => 'estudiante@example.com'],
             [
-                'name' => 'Estudiante User',
-                'password' => Hash::make('zxcvbnm1'),
+                'userApellido'  => 'John',
+                'userNombre'    => 'Doe',
+                'userDocumento' => '30000000',
+                'userTelefono'  => '3333333333',
+                'userProvincia' => 'Ejemplo',
+                'userLocalidad' => 'Ejemplo',
+                'userDomicilio' => 'Ejemplo',
+                'password'      => Hash::make('zxcvbnm1'),
             ]
         );
         $estudiante->assignRole('estudiante');
-        $this->command->info('Roles and initial users created successfully!');
+        
+        $this->command->info('Roles creados correctamente.');
     }
 }

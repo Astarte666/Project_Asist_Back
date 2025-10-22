@@ -10,7 +10,7 @@ class clases extends Model
 
     use HasFactory;
     protected $table = 'clases';
-    protected $fillable = ['fecha', 'tema'];
+    protected $fillable = ['materias_id', 'fecha'];
 
     // Una clase pertenece a una materia
     public function materia()

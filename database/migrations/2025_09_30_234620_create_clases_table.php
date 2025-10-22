@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('clases', function (Blueprint $table) {
             $table->id();
-            /*             $table->foreignId('materias_id')->constrained()->onDelete('cascade');
- */
+            $table->unsignedBigInteger('materias_id');
+            $table->date('fecha');
             $table->timestamps();
+            $table->foreign('materias_id')->references('id')->on('materias')->onDelete('cascade');
         });
     }
 

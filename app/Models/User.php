@@ -11,7 +11,6 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, HasRoles;
 
     /**
@@ -20,7 +19,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'userDocumento',
+        'userApellido',
+        'userNombre',
+        'userTelefono',
+        'userProvincia',
+        'userLocalidad',
+        'userDomicilio',
         'email',
         'password',
     ];

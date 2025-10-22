@@ -13,15 +13,53 @@ class MateriasController extends Controller
      */
     public function index()
     {
-        //
+        try{
         $materias = Materias::all();
-        return response()->json($materias);
-    }
+
+            if ($materias->isEmpty()){
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Todavía no hay materias registradas.',
+                    'data' => []
+                ], 200);
+            }
+
+        return response()->json([
+            'success' =>true,
+            'message' => 'Listado de materias obtenido correctamente',
+            'data' =>$materias
+        ], 200);
+
+    }catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener las materias.',
+            'data' => []
+        ], 500);
+    }}
+
 
     public function showMateriasConCarreras() {
-        $materias = Materias::with(relations: 'carreras')->get();
+
+    try{
+        $materias = Materias::with('carreras')->get();
         return response()->json($materias);
+        if($materias->isEmpty()){
+            return response()->json([
+                'success'=>true,
+                'message'=>'Todavía no hay materias registradas',
+                'data'=>[]
+            ], 200);
+        }
+    }catch (\Exception $e) {
+        return response()->json([
+            'success'=>false,
+            'message'=> 'Error al obtener las materias relacionadas con la carrera',
+            'data'=>[]
+        ], 500); 
+        }
     }
+        
 
     /**
      * Show the form for creating a new resource.
@@ -36,14 +74,25 @@ class MateriasController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try{ 
         $request->validate([
             'matNombre' => 'required|string|max:255',
             'carreras_id' => 'required|exists:carreras,id',
         ]);
 
         $materias = Materias::create($request->all());
-        return response()->json($materias, 201);
+        return response()->json([
+            'success'=>true,
+            'message'=> 'Materia creada correctamente',
+            'data'=>$materias
+        ], 201);
+    }catch (\Exception $e) {
+        return response()->json([
+            'success'=>false,
+            'message'=> 'Error al crear la materia',
+            'data'=>[]
+        ], 500); 
+        }
     }
 
     /**
@@ -69,14 +118,25 @@ class MateriasController extends Controller
      */
     public function update(Request $request, Materias $materias)
     {
-        //
+        try{ 
         $request->validate([
             'matNombre' => 'sometimes|required|string|max:255',
             'carreras_id' => 'sometimes|required|exists:carreras,id',
         ]);
 
             $materias->update($request->all());
-            return response()->json($materias);
+            return response()->json([
+                'success'=>true,
+                'message'=> 'Materia editada correctamente.',
+                'data'=>$materias
+            ], 200);
+    }catch (\Exception $e) {
+        return response()->json([
+            'success'=>false,
+            'message'=> 'Error al editar la materia.',
+            'data'=>[]
+        ], 500); 
+        }
     }
 
     /**
@@ -84,6 +144,19 @@ class MateriasController extends Controller
      */
     public function destroy(Materias $materias)
     {
-        //
+        try{
+            $materias = Materias::destroy($id);
+            return response()->json([
+                'success'=>true,
+                'message'=> 'Materia eliminada correctamente.',
+                'data'=>$materias
+            ], 200);
+        }catch (\Exception $e) {
+            return response()->json([
+                'success'=>false,
+                'message'=> 'Error al eliminar la materia.',
+                'data'=>[]
+            ], 500); 
+            }
     }
 }

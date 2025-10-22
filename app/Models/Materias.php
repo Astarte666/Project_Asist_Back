@@ -6,17 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
 
 
 class Materias extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens, HasRoles;
+    
     protected $table = 'Materias';
 
-    protected $fillable = ['materias_id', 'matNombre', 'matDescripcion', 'carreras_id'];
+    protected $fillable = ['matNombre', 'matDescripcion', 'carreras_id'];
 
     public function carrera(): BelongsTo
     {
-        return $this->belongsTo(Carreras::class);
+        return $this->belongsTo(Carreras::class, 'carreras_id');
     }
 }

@@ -16,13 +16,14 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|string|email|unique:users',
                 'password' => 'required|string|min:8',
-                'rol' => 'required|in:admin,profesor,estudiante',
-                'usDocumento' => 'required|string|unique:users',
-                'usApellido' => 'required|string',
-                'usNombre' => 'required|string',
-                'usTelefono' => 'required|string',
-                'usDomicilio' => 'required|string',
-                'usLocalidad' => 'required|string',
+                'rol' => 'required|in:administrador,profesor,estudiante',
+                'userDocumento' => 'required|string|unique:users',
+                'userApellido' => 'required|string',
+                'userNombre' => 'required|string',
+                'userTelefono' => 'required|string',
+                'userDomicilio' => 'required|string',
+                'userProvincia' => 'required|string',
+                'userLocalidad' => 'required|string',
             ]);
 
             if ($validator->fails()) {
@@ -30,12 +31,13 @@ class AuthController extends Controller
             }
 
             $user = User::create([
-                'usDocumento' => $request->usDocumento,
-                'usApellido' => $request->usApellido,
-                'usNombre' => $request->usNombre,
-                'usTelefono' => $request->usTelefono,
-                'usDomicilio' => $request->usDomicilio,
-                'usLocalidad' => $request->usLocalidad,
+                'userDocumento' => $request->userDocumento,
+                'userApellido' => $request->userApellido,
+                'userNombre' => $request->userNombre,
+                'userTelefono' => $request->userTelefono,
+                'userDomicilio' => $request->userDomicilio,
+                'userProvincia' => $request->userProvincia,
+                'userLocalidad' => $request->userLocalidad,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
@@ -68,9 +70,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->with('roles')->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'message' => ['Las credenciales son incorrectas.'],
-            ]);
+            return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
 
         // Obtén solo los nombres de los roles
@@ -80,18 +80,19 @@ class AuthController extends Controller
             'token' => $user->createToken('API Token')->plainTextToken,
             'user' => [
                 'id' => $user->id,
-                'usDocumento' =>  $user->usDocumento,
-                'usApellido' =>  $user->usApellido,
-                'usNombre' =>  $user->usNombre,
-                'usTelefono' => $user->usTelefono,
-                'usDomicilio' => $user->usDomicilio,
-                'usLocalidad' => $user->usLocalidad,
+                'userDocumento' =>  $user->userDocumento,
+                'userApellido' =>  $user->userApellido,
+                'userNombre' =>  $user->userNombre,
+                'userTelefono' => $user->userTelefono,
+                'userDomicilio' => $user->userDomicilio,
+                'userProvincia' => $user->userProvincia,
+                'userLocalidad' => $user->userLocalidad,
                 'email' => $user->email,
                 'email_verified_at' => $user->email_verified_at,
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at
             ],
-            'rol' => $roleNames[0]
+            'rol' => $roleNames->first() // Usar first() para evitar error si no hay roles
         ]);
     }
 

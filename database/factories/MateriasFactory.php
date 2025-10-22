@@ -19,7 +19,7 @@ class MateriasFactory extends Factory
     {
         return [
 
-            'carreNombre' => $this->faker->unique()->words(2, true),
+            'matNombre' => $this->faker->unique()->words(2, true),
             'carreras_id' => Carreras::factory(),
         ];
     }

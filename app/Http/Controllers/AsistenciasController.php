@@ -13,7 +13,7 @@ class AsistenciasController extends Controller
      */
     public function index()
     {
-        //
+        return asistencias::with(['clase', 'user'])->get();
     }
 
     /**
@@ -29,7 +29,15 @@ class AsistenciasController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request-validate([
+            'clase_id'=>'required|exists:clases,id',
+            'user_id'=>'required|exists:user,id',
+            'presente'=>'required|boolean',
+            'observacion'=>'nullable|string|max:255',
+        ]);
+
+        $asistencias = asistencias::create($request->all());
+        return response()->json($asistencias, 201);
     }
 
     /**
@@ -51,16 +59,19 @@ class AsistenciasController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, asistencias $asistencias)
+    public function update(Request $request, $id)
     {
-        //
+        $asistencias = asistencias::findOrFail($id);
+        $asistencias->update($request->all());
+        return response()->json ($asistencias, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(asistencias $asistencias)
+    public function destroy($id)
     {
-        //
+        $asistencias->destroy($id);
+        return response()->json(['message' => 'Asistencia eliminada correctamente.']); 
     }
 }

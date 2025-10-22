@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
         //seeder de roles
         $this->call([
             RoleSeeder::class,
-            //CarrerasMateriasSeeder::class,
+            CarrerasMateriasSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }
