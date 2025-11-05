@@ -13,7 +13,19 @@ class AsistenciasController extends Controller
      */
     public function index()
     {
-        return asistencias::with(['clase', 'user'])->get();
+        $user = $request->user();
+
+        if ($user->hasRole('estudiante')) {
+            $asistencias = asistencias::with(['clase', 'user'])
+                ->where('user_id', $user->id)
+                ->get();
+        } else {
+            $asistencias = asistencias::with(['clase', 'user'])->get();
+        }
+        return response()->json([
+            'success' => true,
+            'data' => $asistencias
+        ], 200);
     }
 
     /**
@@ -29,15 +41,51 @@ class AsistenciasController extends Controller
      */
     public function store(Request $request)
     {
-        $request-validate([
-            'clase_id'=>'required|exists:clases,id',
-            'user_id'=>'required|exists:user,id',
-            'presente'=>'required|boolean',
-            'observacion'=>'nullable|string|max:255',
+        $user = $request->user();
+
+        if (!$user->hasRole(['estudiante'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No tienes permisos para registrar asistencias.'
+        ], 403);
+    }
+        try {
+        $request->validate([
+            'clase_id' => 'required|exists:clases,id',
+            'user_id' => 'required|exists:users,id',
+            'presente' => 'required|boolean',
+            'observacion' => 'nullable|string|max:255',
         ]);
 
-        $asistencias = asistencias::create($request->all());
-        return response()->json($asistencias, 201);
+        $asistencia = asistencias::create($request->all());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Asistencia registrada correctamente.',
+            'data' => $asistencia
+        ], 201);
+
+    } catch (ValidationException $e) {
+        $errors = $e->errors();
+        if (isset($errors['clase_id']) || isset($errors['user_id'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Materia o estudiante inexistente.',
+                'errors' => $errors
+            ], 404);
+        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Datos inválidos.',
+            'errors' => $errors
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error inesperado al registrar la asistencia.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**
@@ -69,9 +117,27 @@ class AsistenciasController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $asistencias->destroy($id);
-        return response()->json(['message' => 'Asistencia eliminada correctamente.']); 
+        $user = $request->user();
+    if (!$user->hasRole(['estudiante'])) {
+        return response()->json([
+            'success' => false,
+            'message' => 'No tienes permisos para eliminar asistencias.'
+        ], 403);
+    }
+
+    $asistencia = asistencias::find($id);
+    if (!$asistencia) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Asistencia no encontrada.'
+        ], 404);
+    }
+    $asistencia->delete();
+    return response()->json([
+        'success' => true,
+        'message' => 'Asistencia eliminada correctamente.'
+    ], 200);
     }
 }
