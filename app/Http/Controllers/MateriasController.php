@@ -51,7 +51,12 @@ class MateriasController extends Controller
                 'data'=>[]
             ], 200);
         }
-    }catch (\Exception $e) {
+    return response()->json([
+            'success' => true,
+            'message' => 'Listado de materias con sus carreras obtenido correctamente.',
+            'data' => $materias
+        ], 200);
+    } catch (\Exception $e) {
         return response()->json([
             'success'=>false,
             'message'=> 'Error al obtener las materias relacionadas con la carrera',
@@ -86,6 +91,12 @@ class MateriasController extends Controller
             'message'=> 'Materia creada correctamente',
             'data'=>$materias
         ], 201);
+    } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos.',
+                'errors' => $e->errors()
+            ], 400);
     }catch (\Exception $e) {
         return response()->json([
             'success'=>false,
@@ -100,9 +111,26 @@ class MateriasController extends Controller
      */
     public function show(Materias $materias)
     {
-        //
-        $materias->load('carreras'); 
-        return response()->json($materias);
+        try {
+            $materia = Materias::with('carreras')->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Materia obtenida correctamente.',
+                'data' => $materia
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La materia solicitada no existe.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener la materia.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -130,7 +158,18 @@ class MateriasController extends Controller
                 'message'=> 'Materia editada correctamente.',
                 'data'=>$materias
             ], 200);
-    }catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La materia que intentas actualizar no existe.',
+            ], 404);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos.',
+                'errors' => $e->errors()
+            ], 400);    
+        } catch (\Exception $e) {
         return response()->json([
             'success'=>false,
             'message'=> 'Error al editar la materia.',
@@ -151,7 +190,12 @@ class MateriasController extends Controller
                 'message'=> 'Materia eliminada correctamente.',
                 'data'=>$materias
             ], 200);
-        }catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La materia que intentas eliminar no existe.',
+            ], 404);    
+        } catch (\Exception $e) {
             return response()->json([
                 'success'=>false,
                 'message'=> 'Error al eliminar la materia.',

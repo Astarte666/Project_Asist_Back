@@ -94,7 +94,13 @@ class CarrerasController extends Controller
             'message' => 'Carrera creada correctamente.',
             'data'=>$carreras
         ], 201);
-    }catch (\Exception $e) {
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos.',
+                'errors' => $e->errors()
+            ], 400);
+        } catch (\Exception $e) {
         return response()->json([
             'success' => false,
             'message' => 'Error al crear la carrera.',
@@ -107,7 +113,26 @@ class CarrerasController extends Controller
      */
     public function show(Carreras $carreras)
     {
-        return response()->json($carreras);
+        try {
+            $carrera = Carreras::findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Carrera obtenida correctamente.',
+                'data' => $carrera
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La carrera solicitada no existe.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener la carrera.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -132,11 +157,22 @@ class CarrerasController extends Controller
             'message'=> 'Carrera editada correctamente.',
             'data'=>$carreras
         ], 200);
-    }catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al editar la carrera.',
-            'data' => []
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'La carrera a actualizar no existe.',
+            ], 404);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos.',
+                'errors' => $e->errors()
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al editar la carrera.',
+                'data' => []
         ], 500);
     }
     }
@@ -153,7 +189,12 @@ class CarrerasController extends Controller
             'message'=> 'Carrera eliminada correctamente.',
             'data'=>$carreras
         ], 200);
-    }catch (\Exception $e) {
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'La carrera a eliminar no existe.',
+        ], 404);
+    } catch (\Exception $e) {
         return response()->json([
             'success' => false,
             'message' => 'Error al eliminar la carrera.',
