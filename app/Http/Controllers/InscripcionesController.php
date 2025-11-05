@@ -47,7 +47,7 @@ class InscripcionesController extends Controller
             ->where('materias_id', $request->materias_id)
             ->exists();
             if ($existe) {
-                return response()->json(['message' => 'El usuario ya está inscrito en esta materia'], 409);
+                return response()->json(['message' => 'El usuario ya está inscrito en esta materia'], 422);
             }
             $inscripciones = inscripciones::create([
                 'id' => $request->id,
@@ -69,19 +69,19 @@ class InscripcionesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(inscripciones $inscripciones)
+    public function show(inscripciones $id)
     {
         $inscripciones = inscripciones::with(['user', 'materias'])->find($id);
         if (!$inscripciones) {
             return response()->json(['message'=> 'Inscripcion no encontrada'], 404);
         }
-        return response()->json($inscripciones);
+        return response()->json($inscripciones, 200);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(inscripciones $inscripciones)
+    public function edit(inscripciones $id)
     {
         //
     }
@@ -97,13 +97,13 @@ class InscripcionesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(inscripciones $inscripciones)
+    public function destroy($id)
     {
         $inscripciones = inscripciones::find($id);
         if(!$inscripciones){
             return response()->json(['message' => 'Inscripcion no encontrada'], 404);
         }
         $inscripciones->delete();
-        return response()->json(['message' => 'Inscripcion eliminada correctamente']);
+        return response()->json(['message' => 'Inscripcion eliminada correctamente'], 200);
     }
 }
