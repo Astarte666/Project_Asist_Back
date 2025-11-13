@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Materias;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Iluminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Validator;
 
 
 class InscripcionesController extends Controller
@@ -34,36 +34,27 @@ class InscripcionesController extends Controller
      */
     public function store(Request $request)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'id' => 'required|exists:users,id',
-                'materias_id' => 'required|exists:materias,id',
-                'fecha_inscripcion' => 'required|date',
-            ]);
-            if($validator->fails()){
-                return response()->json(['error' =>$validator->errors()], 422);
-            }
-            $existe = inscripciones::where('id', $request->id)
-            ->where('materias_id', $request->materias_id)
-            ->exists();
-            if ($existe) {
-                return response()->json(['message' => 'El usuario ya está inscrito en esta materia'], 422);
-            }
-            $inscripciones = inscripciones::create([
-                'id' => $request->id,
-                'materias_id' => $request->materias_id,
-                'fecha_inscripcion' => $request->fecha_inscripcion,
-            ]);
-            return response()->json([
-                'message' => 'Inscripción creada correctamente',
-                'inscripciones' => $inscripciones
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Error al crear inscripción',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'carrera_id' => 'required|exists:carreras,id',
+            'materias' => 'required|array|min:1',
+            'materias.*' => 'exists:materias,id',
+        ]);
+
+        // Crear inscripción
+        $inscripcion = inscripciones::create([
+            'user_id' => $request->user_id,
+            'carrera_id' => $request->carrera_id,
+            'fecha_inscripcion' => now(),
+        ]);
+
+        // Asignar materias (pueden ser de cualquier carrera)
+        $inscripcion->materias()->attach($request->materias);
+
+        return response()->json([
+            'message' => 'Inscripción completa con materias',
+            'inscripcion_id' => $inscripcion->id
+        ], 201);
     }
 
     /**

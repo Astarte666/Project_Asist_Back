@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
             'userProvincia' => 'Entre Rios',
             'userLocalidad' => 'Nogoyork',
             'userDomicilio' => 'pepe123',
+            'userAceptado' => true,
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),

@@ -27,12 +27,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //CARRERAS
     Route::middleware('role:administrador')->group(function () {
         Route::post('/carreras', [CarrerasController::class, 'store']);
+        Route::get('/carreras/materias', [CarrerasController::class, 'showConMaterias']);
         Route::put('/carreras/{id}', [CarrerasController::class, 'update']);
         Route::delete('/carreras/{id}', [CarrerasController::class, 'destroy']);
     });
     Route::middleware('role:administrador|profesor|estudiante')->group(function () {
         Route::get('/carreras', [CarrerasController::class, 'index']);
         Route::get('/showConMaterias', [CarrerasController::class, 'showConMaterias']);
+        Route::get('carreras/{id}/materias', [CarrerasController::class, 'showMaterias']);
     });
 
     //MATERIAS
@@ -49,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //INSCRIPCIONES
     Route::middleware('role:administrador|estudiante|profesor')->group(function () {
         Route::get('/inscripciones', [InscripcionesController::class, 'index']);
+        Route::post('inscripcion-materias', [InscripcionMateriaController::class, 'store']);
     });
     Route::middleware('role:administrador')->group(function () {
         Route::post('/inscripciones', [InscripcionesController::class, 'store']);

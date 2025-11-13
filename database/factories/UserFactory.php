@@ -23,6 +23,7 @@ class UserFactory extends Factory
             'userProvincia' => $this->faker->state(),
             'userLocalidad' => $this->faker->city(),
             'userDomicilio' => $this->faker->streetAddress(),
+            'userAceptado' => $this->faker->boolean(),
             'email' => $this->faker->unique()->safeEmail(),
             'password' => static::$password ??= Hash::make('password'),
             'email_verified_at' => now(),

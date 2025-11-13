@@ -24,6 +24,7 @@ class AuthController extends Controller
                 'userDomicilio' => 'required|string',
                 'userProvincia' => 'required|string',
                 'userLocalidad' => 'required|string',
+                'userAceptado' => 'sometimes|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -38,6 +39,7 @@ class AuthController extends Controller
                 'userDomicilio' => $request->userDomicilio,
                 'userProvincia' => $request->userProvincia,
                 'userLocalidad' => $request->userLocalidad,
+                'userAceptado' => $request->userAceptado ?? false,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
@@ -87,6 +89,7 @@ class AuthController extends Controller
                 'userDomicilio' => $user->userDomicilio,
                 'userProvincia' => $user->userProvincia,
                 'userLocalidad' => $user->userLocalidad,
+                'userAceptado' => $user->userAceptado,
                 'email' => $user->email,
                 'email_verified_at' => $user->email_verified_at,
                 'created_at' => $user->created_at,

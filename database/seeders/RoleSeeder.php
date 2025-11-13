@@ -34,6 +34,8 @@ class RoleSeeder extends Seeder
                 'userProvincia' => 'Ejemplo',
                 'userLocalidad' => 'Ejemplo',
                 'userDomicilio' => 'Ejemplo',
+                'userAceptado'  => true,
+                'email_verified_at' => now(),
                 'password'      => Hash::make('zxcvbnm1'), 
             ]
         );
@@ -51,6 +53,8 @@ class RoleSeeder extends Seeder
                 'userProvincia' => 'Ejemplo',
                 'userLocalidad' => 'Ejemplo',
                 'userDomicilio' => 'Ejemplo',
+                'userAceptado'  => true,
+                'email_verified_at' => now(),
                 'password'      => Hash::make('zxcvbnm1'),
             ]
         );
@@ -68,6 +72,8 @@ class RoleSeeder extends Seeder
                 'userProvincia' => 'Ejemplo',
                 'userLocalidad' => 'Ejemplo',
                 'userDomicilio' => 'Ejemplo',
+                'userAceptado'  => true,
+                'email_verified_at' => now(),
                 'password'      => Hash::make('zxcvbnm1'),
             ]
         );

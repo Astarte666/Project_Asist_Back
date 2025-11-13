@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('userProvincia')->nullable();
             $table->string('userLocalidad')->nullable();
             $table->string('userDomicilio')->nullable();
+            $table->boolean('userAceptado')->default(false);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

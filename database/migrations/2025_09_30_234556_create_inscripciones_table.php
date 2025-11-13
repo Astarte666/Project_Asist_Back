@@ -6,24 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('inscripciones', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->date('fecha_inscripcion');
-            $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unique(['user_id' ]);
-        });
+        $table->id();
+        $table->unsignedBigInteger('user_id');
+        $table->date('fecha_inscripcion');
+        $table->timestamps();
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+    });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('inscripciones');

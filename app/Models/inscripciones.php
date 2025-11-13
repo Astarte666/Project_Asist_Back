@@ -8,18 +8,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class inscripciones extends Model
 {
     use HasFactory;
+
     protected $table = 'inscripciones';
-    protected $fillable = ['id', 'materias_id', 'fecha_inscripcion'];
+    protected $fillable = ['user_id', 'fecha_inscripcion'];
 
-    // Una inscripción pertenece a un alumno
-    public function alumno()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'id', 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Una inscripción pertenece a una materia
-    public function materia()
-    {
-        return $this->belongsTo(Materias::class);
-    }
+    // NUEVA RELACIÓN
+    public function materias()
+{
+    return $this->belongsToMany(
+        Materias::class,
+        'inscripcion_materias',
+        'inscripcion_id',
+        'materia_id'
+    );
+}
 }

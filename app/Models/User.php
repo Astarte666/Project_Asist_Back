@@ -26,6 +26,7 @@ class User extends Authenticatable
         'userProvincia',
         'userLocalidad',
         'userDomicilio',
+        'userAceptado',
         'email',
         'password',
     ];
