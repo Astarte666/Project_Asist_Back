@@ -13,8 +13,6 @@ return new class extends Migration
             $table->foreignId('inscripcion_id')->constrained('inscripciones')->onDelete('cascade');
             $table->foreignId('materia_id')->constrained('materias')->onDelete('cascade');
             $table->timestamps();
-
-            // ← ESTO VA EN LA TABLA PIVOTE
             $table->unique(['inscripcion_id', 'materia_id']);
         });
     }

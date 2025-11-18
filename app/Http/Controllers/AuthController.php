@@ -39,7 +39,7 @@ class AuthController extends Controller
                 'userDomicilio' => $request->userDomicilio,
                 'userProvincia' => $request->userProvincia,
                 'userLocalidad' => $request->userLocalidad,
-                'userAceptado' => $request->userAceptado ?? false,
+                'userAceptado' => $request->userAceptado ?? 0,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
@@ -56,6 +56,38 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    //Solicitudes Pendientes
+    public function usuariosPendientes()
+    {
+        $pendientes = User::where('userAceptado', 0)
+            ->whereHas('roles', function ($q) {
+                $q->where('name', 'estudiante'); // o 'profesor' si querés
+            })
+            ->select('id', 'userNombre', 'userApellido', 'email', 'userDocumento', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($pendientes);
+    }
+
+    //Aceptar solicitud de registro
+    public function aceptarUsuario($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->userAceptado) {
+            return response()->json(['message' => 'El usuario ya está aceptado.'], 400);
+        }
+
+        $user->userAceptado = 1;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Solicitud de registro aceptada.',
+            'user' => $user
+        ]);
     }
 
     public function login(Request $request)
@@ -75,8 +107,13 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
 
-        // Obtén solo los nombres de los roles
-        $roleNames = $user->roles->pluck('name'); // Utiliza pluck para obtener solo la columna 'name'
+        if (!$user->userAceptado) {
+            return response()->json([
+                'message' => 'Tu solicitud está pendiente.'
+            ], 403);
+        }
+
+        $roleNames = $user->roles->pluck('name'); 
 
         return response()->json([
             'token' => $user->createToken('API Token')->plainTextToken,

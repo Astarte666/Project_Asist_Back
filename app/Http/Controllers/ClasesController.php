@@ -15,8 +15,29 @@ class ClasesController extends Controller
      */
     public function index()
     {
-        return Clases::with('materias')->get();
-        return response()->json('Lista de clases obtenida correctamente', 200);
+        try {
+            $clases = Clases::with('materia')->get();
+
+            if ($clases->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Todavía no hay clases registradas.',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lista de clases obtenida correctamente.',
+                'data' => $clases
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener las clases.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -34,7 +55,7 @@ class ClasesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'materias_id' => 'required|exists:materias,id',
+                'materia_id' => 'required|exists:materias,id',
                 'fecha' => 'required|date',
             ]);
 
@@ -42,8 +63,8 @@ class ClasesController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $clase = Clase::create([
-                'materias_id' => $request->materias_id,
+            $clases = Clases::create([
+                'materia_id' => $request->materia_id,
                 'fecha' => $request->fecha,
             ]);
 
@@ -65,19 +86,32 @@ class ClasesController extends Controller
      */
     public function show($id)
     {
-        $clase = Clases::with('materias')->find('id');
-        
-        if(!$clase){
-            return response()->json(['message' => 'Clase no encontrada'], 404);
-        }
+        try {
+            $clases = Clases::with('materias')->findOrFail($id);
 
-        return response()->json($clase);
+            return response()->json([
+                'success' => true,
+                'message' => 'Clase obtenida correctamente.',
+                'data' => $clases
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Clase no encontrada.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener la clase.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(clases $clases)
+    public function edit(Clases $clases)
     {
         //
     }

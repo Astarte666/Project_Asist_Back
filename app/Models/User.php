@@ -48,9 +48,15 @@ class User extends Authenticatable
      */
     protected function casts(): array
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'userAceptado' => 'boolean', 
         ];
+    }
+
+    public function asistencias()
+    {
+        return $this->hasMany(asistencias::class, 'user_id');
     }
 }

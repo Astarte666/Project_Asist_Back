@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('clase_id');
             $table->unsignedBigInteger('user_id');
-            $table->boolean('presente')->default(false);
+            $table->enum('condicion', ['presente', 'ausente', 'justificado']);
             $table->text('observacion')->nullable();
             $table->timestamps();
             

@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'userLocalidad' => 'Nogoyork',
             'userDomicilio' => 'pepe123',
             'userAceptado' => true,
-            'email' => 'admin@example.com',
+            'email' => 'admin1@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
         ]);

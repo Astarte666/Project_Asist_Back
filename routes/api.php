@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:administrador')->group(function () {
         Route::post('/inscripciones', [InscripcionesController::class, 'store']);
         Route::delete('/inscripciones/{id}', [InscripcionesController::class, 'destroy']);
+        Route::get('/inscripciones/{id}', [InscripcionesController::class, 'show']);
     });
 
     //CLASES
@@ -63,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/clases', [ClasesController::class, 'index']);
     });
     Route::middleware('role:administrador')->group(function () {
+        Route::get('/clases/{id}', [ClasesController::class, 'show']);
         Route::post('/clases', [ClasesController::class, 'store']);
         Route::delete('/clases/{id}', [ClasesController::class, 'destroy']);
         Route::put('/clases/{id}', [ClasesController::class, 'update']);
@@ -73,8 +75,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/asistencias', [AsistenciasController::class, 'index']);
     });
     Route::middleware('role:administrador')->group(function () {
-        Route::post('/asistencias', [AsistenciasController::class, 'store']);
-        Route::delete('/asistencias/{id}', [AsistenciasController::class, 'destroy']);
+        Route::get('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'prepararTomarAsistencia']);
+        Route::post('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'guardarAsistencias']);
         Route::put('/asistencias/{id}', [AsistenciasController::class, 'update']);
+        Route::delete('/asistencias/{id}', [AsistenciasController::class, 'destroy']);
+        
     });
+
+    //GESTIÓN DE REGISTRO
+    Route::middleware(['role:administrador'])->group(function () {
+    Route::post('/gestion/usuarios/{id}/aceptar', [AuthController::class, 'aceptarUsuario']);
+    });
+    Route::get('/gestion/usuarios-pendientes', [AuthController::class, 'usuariosPendientes']);
 });

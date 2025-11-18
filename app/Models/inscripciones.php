@@ -17,7 +17,6 @@ class inscripciones extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // NUEVA RELACIÓN
     public function materias()
 {
     return $this->belongsToMany(
