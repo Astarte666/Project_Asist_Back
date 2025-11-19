@@ -20,6 +20,6 @@ class Carreras extends Model
 
     public function materias(): HasMany
         {
-        return $this->hasMany(Materias::class);
+        return $this->hasMany(Materias::class, 'carreras_id');
         }
 }

@@ -2,6 +2,10 @@
 
 return [
 
+    'defaults' => [
+        'guard' => 'api',
+        ],
+
     'models' => [
 
         /*
@@ -199,4 +203,6 @@ return [
 
         'store' => 'default',
     ],
+
+    
 ];

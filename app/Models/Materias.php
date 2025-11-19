@@ -22,4 +22,20 @@ class Materias extends Model
     {
         return $this->belongsTo(Carreras::class, 'carreras_id');
     }
+
+    // Estudiantes 
+    public function estudiantes()
+    {
+        return $this->belongsToMany(User::class, 'materia_user', 'materia_id', 'user_id')
+                    ->whereHas('roles', function($q) { $q->where('name', 'estudiante'); })
+                    ->withTimestamps();
+    }
+
+    // Profesores
+    public function profesores()
+    {
+        return $this->belongsToMany(User::class, 'materia_profesor', 'materia_id', 'user_id')
+                    ->whereHas('roles', function($q) { $q->where('name', 'profesor'); })
+                    ->withTimestamps();
+    }
 }

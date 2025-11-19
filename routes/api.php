@@ -27,7 +27,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //CARRERAS
     Route::middleware('role:administrador')->group(function () {
         Route::post('/carreras', [CarrerasController::class, 'store']);
+        Route::get('/carreras/{id}', [CarrerasController::class, 'show']);
         Route::get('/carreras/materias', [CarrerasController::class, 'showConMaterias']);
+        Route::get('/carreras/{id}/curso', [CarrerasController::class, 'showCurso']);
+        Route::get('/carreras/select', [CarrerasController::class, 'listaSelect']);
+        Route::get('/carreras/{carrera_id}/estudiantes', [CarrerasController::class, 'estudiantesInscriptos']);
         Route::put('/carreras/{id}', [CarrerasController::class, 'update']);
         Route::delete('/carreras/{id}', [CarrerasController::class, 'destroy']);
     });

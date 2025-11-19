@@ -55,6 +55,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function materias() 
+    { 
+        return $this->belongsToMany(Materias::class, 'materia_user'); 
+    }
+
     public function asistencias()
     {
         return $this->hasMany(asistencias::class, 'user_id');
