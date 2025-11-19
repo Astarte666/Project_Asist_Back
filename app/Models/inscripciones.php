@@ -18,12 +18,16 @@ class inscripciones extends Model
     }
 
     public function materias()
-{
-    return $this->belongsToMany(
-        Materias::class,
-        'inscripcion_materias',
-        'inscripcion_id',
-        'materia_id'
-    );
-}
+    {
+        return $this->belongsToMany(
+            Materias::class,
+            'inscripcion_materias',
+            'inscripcion_id',
+            'materia_id'
+        );
+    }
+    public function inscripciones()
+    {
+        return $this->hasMany(Inscripciones::class, 'user_id');
+    }
 }

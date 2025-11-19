@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClasesController;
 use App\Http\Controllers\InscripcionesController;
+use App\Http\Controllers\InscripcionMateriaController;
+use App\Http\Controllers\UserController;
 
 
 
@@ -24,6 +26,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    //USER 
+    Route::middleware('role:estudiante|profesor|administrador')->group(function () {
+        Route::get('/userCarrerasMaterias', [UserController::class, 'userCarrerasMaterias']);
+    });
+    
     //CARRERAS
     Route::middleware('role:administrador')->group(function () {
         Route::post('/carreras', [CarrerasController::class, 'store']);
@@ -56,9 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:administrador|estudiante|profesor')->group(function () {
         Route::get('/inscripciones', [InscripcionesController::class, 'index']);
         Route::post('inscripcion-materias', [InscripcionMateriaController::class, 'store']);
+        Route::post('/inscripciones', [InscripcionesController::class, 'store']);
+
     });
     Route::middleware('role:administrador')->group(function () {
-        Route::post('/inscripciones', [InscripcionesController::class, 'store']);
         Route::delete('/inscripciones/{id}', [InscripcionesController::class, 'destroy']);
         Route::get('/inscripciones/{id}', [InscripcionesController::class, 'show']);
     });

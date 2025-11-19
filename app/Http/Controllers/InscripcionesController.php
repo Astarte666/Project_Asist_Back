@@ -48,9 +48,8 @@ class InscripcionesController extends Controller
             'fecha_inscripcion' => now(),
         ]);
 
-        // Asignar materias (pueden ser de cualquier carrera)
+        // Asignar materias (cualquier carrera)
         $inscripcion->materias()->attach($request->materias);
-
         return response()->json([
             'message' => 'Inscripción completa con materias',
             'inscripcion_id' => $inscripcion->id

@@ -63,7 +63,7 @@ class AuthController extends Controller
     {
         $pendientes = User::where('userAceptado', 0)
             ->whereHas('roles', function ($q) {
-                $q->where('name', 'estudiante'); // o 'profesor' si querés
+                $q->where('name', 'estudiante'); 
             })
             ->select('id', 'userNombre', 'userApellido', 'email', 'userDocumento', 'created_at')
             ->orderBy('created_at', 'desc')
@@ -132,7 +132,7 @@ class AuthController extends Controller
                 'created_at' => $user->created_at,
                 'updated_at' => $user->updated_at
             ],
-            'rol' => $roleNames->first() // Usar first() para evitar error si no hay roles
+            'rol' => $roleNames->first()
         ]);
     }
 

@@ -8,6 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\Inscripciones;
+use App\Models\Materias;
+use App\Models\asistencias;
+
 
 class User extends Authenticatable
 {
@@ -64,4 +68,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(asistencias::class, 'user_id');
     }
+    public function inscripciones()
+    {
+        return $this->hasMany(inscripciones::class, 'user_id');
+    }
+
 }
