@@ -16,7 +16,7 @@ class ClasesController extends Controller
     public function index()
     {
         try {
-            $clases = Clases::with('materia')->get();
+            $clases = Clases::with('materia.carrera')->get();
 
             if ($clases->isEmpty()) {
                 return response()->json([
@@ -55,7 +55,7 @@ class ClasesController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'materia_id' => 'required|exists:materias,id',
+                'materias_id' => 'required|exists:materias,id',
                 'fecha' => 'required|date',
             ]);
 
@@ -64,7 +64,7 @@ class ClasesController extends Controller
             }
 
             $clases = Clases::create([
-                'materia_id' => $request->materia_id,
+                'materias_id' => $request->materias_id,
                 'fecha' => $request->fecha,
             ]);
 

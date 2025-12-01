@@ -64,6 +64,42 @@ class MateriasController extends Controller
         ], 500); 
         }
     }
+
+    public function estudiantesInscriptos($materia_id)
+{
+    try {
+        $materia = Materias::with('estudiantes')->findOrFail($materia_id);
+
+        $estudiantes = $materia->estudiantes()
+            ->select('users.id', 'userNombre as nombre', 'userApellido as apellido', 'userDocumento as documento')
+            ->get();
+
+        if ($estudiantes->isEmpty()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'No hay alumnos inscriptos en esta materia.',
+                'data' => []
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Alumnos inscriptos obtenidos correctamente.',
+            'data' => $estudiantes
+        ], 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Materia no encontrada.'
+        ], 404);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al obtener los alumnos.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
         
 
     /**

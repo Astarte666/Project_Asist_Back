@@ -20,7 +20,7 @@ class ClasesFactory extends Factory
     public function definition(): array
     {
         return [
-            'materia_id' => null, 
+            'materias_id' => null, 
             'fecha' => Carbon::now()->addDays($this->faker->numberBetween(1, 30)), 
             'created_at' => now(),
             'updated_at' => now(),

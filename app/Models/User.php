@@ -61,7 +61,9 @@ class User extends Authenticatable
 
     public function materias() 
     { 
-        return $this->belongsToMany(Materias::class, 'materia_user'); 
+        return $this->belongsToMany(Materias::class, 'inscripcion_materias', 'user_id', 'materia_id')
+                    ->withPivot('fecha_inscripcion')
+                    ->withTimestamps(); 
     }
 
     public function asistencias()

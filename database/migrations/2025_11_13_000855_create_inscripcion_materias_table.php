@@ -10,10 +10,11 @@ return new class extends Migration
     {
         Schema::create('inscripcion_materias', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('inscripcion_id')->constrained('inscripciones')->onDelete('cascade');
             $table->foreignId('materia_id')->constrained('materias')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->date('fecha_inscripcion')->nullable();
             $table->timestamps();
-            $table->unique(['inscripcion_id', 'materia_id']);
+            $table->unique(['materia_id', 'user_id']);
         });
     }
 

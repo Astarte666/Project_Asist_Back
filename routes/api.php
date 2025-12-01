@@ -50,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //MATERIAS
     Route::middleware('role:administrador')->group(function () {
+        Route::get('/materias/{id}/estudiantes', [MateriasController::class, 'estudiantesInscriptos']);
         Route::post('/materias', [MateriasController::class, 'store']);
         Route::put('/materias/{id}', [MateriasController::class, 'update']);
         Route::delete('/materias/{id}', [MateriasController::class, 'destroy']);

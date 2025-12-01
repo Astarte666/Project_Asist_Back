@@ -26,8 +26,9 @@ class Materias extends Model
     // Estudiantes 
     public function estudiantes()
     {
-        return $this->belongsToMany(User::class, 'materia_user', 'materia_id', 'user_id')
+        return $this->belongsToMany(User::class, 'inscripciones_materias', 'materia_id', 'user_id')
                     ->whereHas('roles', function($q) { $q->where('name', 'estudiante'); })
+                    ->withPivot('fecha_inscripcion')
                     ->withTimestamps();
     }
 

@@ -13,13 +13,14 @@ class clases extends Model
 
     use HasFactory;
     protected $table = 'clases';
+    protected $fillable = ['materias_id', 'fecha'];
     protected $dates = ['fecha'];
     
 
     // Una clase pertenece a una materia
     public function materia()
     {
-        return $this->belongsTo(Materias::class, 'materia_id');
+        return $this->belongsTo(Materias::class, 'materias_id');
     }
 
     // Una clase tiene muchas asistencias
