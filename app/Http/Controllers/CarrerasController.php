@@ -203,32 +203,39 @@ class CarrerasController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
-                'carreNombre' => 'required|string|max:255|unique:carreras,carreNombre',
+            $validated = $request->validate([
+                'carreNombre' => 'required|string|max:255',
+                'materias' => 'required|array',
+                'materias.*' => 'exists:materias,id'
             ]);
 
-            $carrera = Carreras::create($request->all());
+            $carrera = Carreras::create([
+                'carreNombre' => $validated['carreNombre']
+            ]);
+
+            Materias::whereIn('id', $validated['materias'])
+                    ->update(['carreras_id' => $carrera->id]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Carrera creada correctamente.',
+                'message' => 'Carrera creada y materias asignadas.',
                 'data' => $carrera
             ], 201);
 
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Datos inválidos.',
                 'errors' => $e->errors()
-            ], 400);
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al crear la carrera.',
-                'data' => []
+                'error' => $e->getMessage()
             ], 500);
         }
     }
+
 
     public function show($id)
     {

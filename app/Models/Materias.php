@@ -14,9 +14,7 @@ class Materias extends Model
 {
     use HasFactory, HasApiTokens, HasRoles;
     
-    protected $table = 'Materias';
-
-    protected $fillable = ['matNombre', 'matDescripcion', 'carreras_id'];
+    protected $fillable = ['matNombre', 'carreras_id'];
 
     public function carrera(): BelongsTo
     {
