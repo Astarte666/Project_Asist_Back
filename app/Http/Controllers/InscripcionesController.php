@@ -21,6 +21,17 @@ class InscripcionesController extends Controller
         return response()->json($inscripciones);
     }
 
+    /* Lista de inscripciones de un usuario */
+    public function misInscripciones(Request $request)
+    {
+        $user = $request->user();
+        $inscripciones = inscripciones::with(['materias', 'user'])
+            ->where('user_id', $user->id)
+            ->get();
+
+        return response()->json($inscripciones);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -49,7 +60,14 @@ class InscripcionesController extends Controller
         ]);
 
         // Asignar materias (cualquier carrera)
-        $inscripcion->materias()->attach($request->materias);
+        foreach ($request->materias as $materia_id) {
+            $inscripcion->materias()->attach($materia_id, [
+                'user_id' => $inscripcion->user_id,
+                'fecha_inscripcion' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
         return response()->json([
             'message' => 'Inscripción completa con materias',
             'inscripcion_id' => $inscripcion->id

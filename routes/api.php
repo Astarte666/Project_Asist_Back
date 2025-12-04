@@ -63,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //INSCRIPCIONES
     Route::middleware('role:administrador|estudiante|profesor')->group(function () {
         Route::get('/inscripciones', [InscripcionesController::class, 'index']);
+        Route::get('/mis-inscripciones', [InscripcionesController::class, 'misInscripciones']);
         Route::post('inscripcion-materias', [InscripcionMateriaController::class, 'store']);
         Route::post('/inscripciones', [InscripcionesController::class, 'store']);
 
