@@ -25,11 +25,50 @@ class InscripcionesController extends Controller
     public function misInscripciones(Request $request)
     {
         $user = $request->user();
-        $inscripciones = inscripciones::with(['materias', 'user'])
-            ->where('user_id', $user->id)
-            ->get();
+        
+        $materias = $user->materias()
+            ->with('carrera')
+            ->get()
+            ->groupBy(function($materia) {
+                return $materia->carrera->carreNombre ?? 'Sin Carrera';
+            })
+            ->map(function($materiasPorCarrera, $nombreCarrera) {
+                return [
+                    'carrera' => $nombreCarrera,
+                    'materias' => $materiasPorCarrera->map(function($materia) {
+                        return [
+                            'id' => $materia->id,
+                            'nombre' => $materia->matNombre,
+                            'fecha_inscripcion' => $materia->pivot->fecha_inscripcion
+                        ];
+                    })
+                ];
+            })->values();
 
-        return response()->json($inscripciones);
+        return response()->json([
+            'success' => true,
+            'data' => $materias
+        ]);
+    }
+
+    public function materiasPorCarrera($carrera_id)
+    {
+        try {
+            $materias = Materias::where('carreras_id', $carrera_id)
+                ->select('id', 'matNombre as nombre')
+                ->get();
+            
+            return response()->json([
+                'success' => true,
+                'data' => $materias
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener materias',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -47,30 +86,20 @@ class InscripcionesController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'carrera_id' => 'required|exists:carreras,id',
             'materias' => 'required|array|min:1',
             'materias.*' => 'exists:materias,id',
         ]);
 
-        // Crear inscripción
-        $inscripcion = inscripciones::create([
-            'user_id' => $request->user_id,
-            'carrera_id' => $request->carrera_id,
-            'fecha_inscripcion' => now(),
-        ]);
+        $user = User::find($request->user_id);
 
-        // Asignar materias (cualquier carrera)
-        foreach ($request->materias as $materia_id) {
-            $inscripcion->materias()->attach($materia_id, [
-                'user_id' => $inscripcion->user_id,
-                'fecha_inscripcion' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        $materiasInscritas = $user->materias()->with('carrera')->get()->groupBy(function($materia) {
+        return $materia->carrera->carreNombre ?? 'Sin Carrera';
+        });
+        
         return response()->json([
-            'message' => 'Inscripción completa con materias',
-            'inscripcion_id' => $inscripcion->id
+            'success' => true,
+            'message' => 'Inscripción completada correctamente',
+            'data' => $materiasInscritas
         ], 201);
     }
 

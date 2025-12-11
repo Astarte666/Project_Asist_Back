@@ -6,17 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    public function up()
     {
-        Schema::create('inscripcion_materias', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('inscripcion_id')->constrained('inscripciones')->onDelete('cascade');
-            $table->foreignId('materia_id')->constrained('materias')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->date('fecha_inscripcion')->nullable();
-            $table->timestamps();
-            $table->unique(['materia_id', 'user_id']);
-        });
+        if (!Schema::hasTable('inscripcion_materias')) {
+            Schema::create('inscripcion_materias', function (Blueprint $table) {
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');                      
+                $table->foreignId('materia_id')->constrained()->onDelete('cascade');
+                $table->primary(['user_id', 'materia_id']);
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
