@@ -12,6 +12,7 @@ return new class extends Migration
             Schema::create('inscripcion_materias', function (Blueprint $table) {
                 $table->foreignId('user_id')->constrained()->onDelete('cascade');                      
                 $table->foreignId('materia_id')->constrained()->onDelete('cascade');
+                $table->date('fecha_inscripcion')->nullable();
                 $table->primary(['user_id', 'materia_id']);
                 $table->timestamps();
             });

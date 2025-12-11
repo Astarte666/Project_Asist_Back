@@ -87,6 +87,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //ASISTENCIAS
     Route::middleware('role:administrador|estudiante|profesor')->group(function () {
         Route::get('/asistencias', [AsistenciasController::class, 'index']);
+        Route::get('/asistencias/estadisticas/{user_id}/{materia_id}', [AsistenciasController::class, 'estadisticasAlumno']);
     });
     Route::middleware('role:administrador')->group(function () {
         Route::get('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'prepararTomarAsistencia']);

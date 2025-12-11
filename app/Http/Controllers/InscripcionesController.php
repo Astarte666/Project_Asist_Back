@@ -92,6 +92,14 @@ class InscripcionesController extends Controller
 
         $user = User::find($request->user_id);
 
+        foreach ($request->materias as $materia_id) {
+            if (!$user->materias()->where('materia_id', $materia_id)->exists()) {
+                $user->materias()->attach($materia_id, [
+                    'fecha_inscripcion' => now(),
+                ]);
+            }
+        }
+
         $materiasInscritas = $user->materias()->with('carrera')->get()->groupBy(function($materia) {
         return $materia->carrera->carreNombre ?? 'Sin Carrera';
         });

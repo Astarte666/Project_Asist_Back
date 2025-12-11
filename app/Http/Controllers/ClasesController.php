@@ -70,7 +70,7 @@ class ClasesController extends Controller
 
             return response()->json([
                 'message' => 'Clase creada correctamente',
-                'clase' => $clase
+                'clase' => $clases
             ], 201);
 
         } catch (\Exception $e) {

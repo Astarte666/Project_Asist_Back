@@ -10,7 +10,7 @@ class asistencias extends Model
     use HasFactory;
 
     protected $table = 'asistencias';
-    protected $fillable = ['clase_id', 'user_id', 'presente', 'observacion'];
+    protected $fillable = ['clase_id', 'user_id', 'condicion', 'observacion'];
 
     // Asistencia pertenece a una clase
     public function clase()
