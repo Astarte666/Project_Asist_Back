@@ -65,7 +65,7 @@ class AuthController extends Controller
             ->whereHas('roles', function ($q) {
                 $q->where('name', 'estudiante'); 
             })
-            ->select('id', 'userNombre', 'userApellido', 'email', 'userDocumento', 'created_at')
+            ->select('id', 'userNombre', 'userApellido', 'email', 'userDocumento', 'userDomicilio', 'userTelefono', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
 

@@ -237,6 +237,8 @@ class AsistenciasController extends Controller
         ], 200);
     }
 
+    // En AsistenciasController.php
+
     public function estadisticasAlumno($user_id, $materia_id)
     {
         $user = request()->user();
@@ -250,7 +252,10 @@ class AsistenciasController extends Controller
 
         $materia = Materias::findOrFail($materia_id);
         $alumno = User::findOrFail($user_id);
+        
         $totalClases = Clases::where('materias_id', $materia_id)->count();
+        
+        // Asistencias del alumno en esa materia
         $asistencias = asistencias::whereHas('clase', function($q) use ($materia_id) {
             $q->where('materias_id', $materia_id);
         })->where('user_id', $user_id)->get();
@@ -259,9 +264,27 @@ class AsistenciasController extends Controller
         $ausentes = $asistencias->where('condicion', 'ausente')->count();
         $justificados = $asistencias->where('condicion', 'justificado')->count();
 
+        $sinRegistro = $totalClases - $asistencias->count();
+
         $porcentajeAsistencia = $totalClases > 0 
             ? round(($presentes / $totalClases) * 100, 2) 
             : 0;
+
+        $porcentajeConJustificados = $totalClases > 0 
+            ? round((($presentes + $justificados) / $totalClases) * 100, 2) 
+            : 0;
+
+        $ultimaAsistencia = $asistencias->sortByDesc('created_at')->first();
+
+        $faltasPorMes = asistencias::whereHas('clase', function($q) use ($materia_id) {
+            $q->where('materias_id', $materia_id)
+            ->where('fecha', '>=', now()->subMonths(6));
+        })
+        ->where('user_id', $user_id)
+        ->where('condicion', 'ausente')
+        ->selectRaw('MONTH(created_at) as mes, COUNT(*) as total')
+        ->groupBy('mes')
+        ->get();
 
         return response()->json([
             'success' => true,
@@ -280,8 +303,190 @@ class AsistenciasController extends Controller
                     'presentes' => $presentes,
                     'ausentes' => $ausentes,
                     'justificados' => $justificados,
-                    'porcentaje_asistencia' => $porcentajeAsistencia
+                    'sin_registro' => $sinRegistro,
+                    'porcentaje_asistencia' => $porcentajeAsistencia,
+                    'porcentaje_con_justificados' => $porcentajeConJustificados,
+                    'ultima_asistencia' => $ultimaAsistencia ? [
+                        'fecha' => $ultimaAsistencia->clase->fecha,
+                        'condicion' => $ultimaAsistencia->condicion
+                    ] : null,
+                    'faltas_por_mes' => $faltasPorMes
                 ]
+            ]
+        ], 200);
+    }
+
+    public function estadisticasGeneralesAlumno($user_id)
+    {
+        $user = request()->user();
+        
+        if ($user->hasRole('estudiante') && $user->id != $user_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para ver estas estadísticas.'
+            ], 403);
+        }
+
+        $alumno = User::findOrFail($user_id);
+        
+        // Materias en las que está inscripto
+        $materias = $alumno->materias()->with('carrera')->get();
+        
+        $estadisticasPorMateria = [];
+        $totales = [
+            'total_clases' => 0,
+            'presentes' => 0,
+            'ausentes' => 0,
+            'justificados' => 0,
+        ];
+
+        foreach ($materias as $materia) {
+            $totalClases = Clases::where('materias_id', $materia->id)->count();
+            
+            $asistencias = asistencias::whereHas('clase', function($q) use ($materia) {
+                $q->where('materias_id', $materia->id);
+            })->where('user_id', $user_id)->get();
+
+            $presentes = $asistencias->where('condicion', 'presente')->count();
+            $ausentes = $asistencias->where('condicion', 'ausente')->count();
+            $justificados = $asistencias->where('condicion', 'justificado')->count();
+
+            $porcentaje = $totalClases > 0 
+                ? round(($presentes / $totalClases) * 100, 2) 
+                : 0;
+
+            $estadisticasPorMateria[] = [
+                'materia' => [
+                    'id' => $materia->id,
+                    'nombre' => $materia->matNombre,
+                    'carrera' => $materia->carrera ? $materia->carrera->carreNombre : 'Sin carrera'
+                ],
+                'total_clases' => $totalClases,
+                'presentes' => $presentes,
+                'ausentes' => $ausentes,
+                'justificados' => $justificados,
+                'porcentaje_asistencia' => $porcentaje,
+                'estado' => $porcentaje >= 75 ? 'regular' : 'en_riesgo'
+            ];
+
+            $totales['total_clases'] += $totalClases;
+            $totales['presentes'] += $presentes;
+            $totales['ausentes'] += $ausentes;
+            $totales['justificados'] += $justificados;
+        }
+
+        $porcentajeGeneral = $totales['total_clases'] > 0 
+            ? round(($totales['presentes'] / $totales['total_clases']) * 100, 2) 
+            : 0;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'alumno' => [
+                    'id' => $alumno->id,
+                    'nombre_completo' => "{$alumno->userApellido}, {$alumno->userNombre}",
+                    'documento' => $alumno->userDocumento
+                ],
+                'resumen_general' => [
+                    'total_clases' => $totales['total_clases'],
+                    'presentes' => $totales['presentes'],
+                    'ausentes' => $totales['ausentes'],
+                    'justificados' => $totales['justificados'],
+                    'porcentaje_asistencia' => $porcentajeGeneral,
+                    'materias_inscripto' => $materias->count(),
+                    'materias_en_riesgo' => collect($estadisticasPorMateria)->where('estado', 'en_riesgo')->count()
+                ],
+                'por_materia' => $estadisticasPorMateria
+            ]
+        ], 200);
+    }
+
+
+    public function estadisticasMateria($materia_id)
+    {
+        $user = request()->user();
+        
+        if (!$user->hasRole(['profesor', 'administrador'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para ver estas estadísticas.'
+            ], 403);
+        }
+
+        $materia = Materias::with('carrera')->findOrFail($materia_id);
+        
+        if ($user->hasRole('profesor')) {
+            $estaAsignado = $user->materias()->where('materias.id', $materia_id)->exists();
+            if (!$estaAsignado) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No tienes permiso para ver estadísticas de esta materia.'
+                ], 403);
+            }
+        }
+
+        $totalClases = Clases::where('materias_id', $materia_id)->count();
+        $estudiantes = $materia->estudiantes()->get();
+        
+        $estadisticasEstudiantes = [];
+        $promedios = [
+            'asistencia' => 0,
+            'ausencias' => 0,
+            'estudiantes_en_riesgo' => 0
+        ];
+
+        foreach ($estudiantes as $estudiante) {
+            $asistencias = asistencias::whereHas('clase', function($q) use ($materia_id) {
+                $q->where('materias_id', $materia_id);
+            })->where('user_id', $estudiante->id)->get();
+
+            $presentes = $asistencias->where('condicion', 'presente')->count();
+            $ausentes = $asistencias->where('condicion', 'ausente')->count();
+            $porcentaje = $totalClases > 0 ? round(($presentes / $totalClases) * 100, 2) : 0;
+
+            $enRiesgo = $porcentaje < 75;
+
+            $estadisticasEstudiantes[] = [
+                'estudiante' => [
+                    'id' => $estudiante->id,
+                    'nombre_completo' => "{$estudiante->userApellido}, {$estudiante->userNombre}",
+                    'documento' => $estudiante->userDocumento
+                ],
+                'presentes' => $presentes,
+                'ausentes' => $ausentes,
+                'porcentaje' => $porcentaje,
+                'estado' => $enRiesgo ? 'en_riesgo' : 'regular'
+            ];
+
+            $promedios['asistencia'] += $porcentaje;
+            $promedios['ausencias'] += $ausentes;
+            if ($enRiesgo) {
+                $promedios['estudiantes_en_riesgo']++;
+            }
+        }
+
+        $totalEstudiantes = $estudiantes->count();
+        if ($totalEstudiantes > 0) {
+            $promedios['asistencia'] = round($promedios['asistencia'] / $totalEstudiantes, 2);
+            $promedios['ausencias'] = round($promedios['ausencias'] / $totalEstudiantes, 2);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'materia' => [
+                    'id' => $materia->id,
+                    'nombre' => $materia->matNombre,
+                    'carrera' => $materia->carrera ? $materia->carrera->carreNombre : 'Sin carrera'
+                ],
+                'resumen' => [
+                    'total_clases' => $totalClases,
+                    'total_estudiantes' => $totalEstudiantes,
+                    'promedio_asistencia' => $promedios['asistencia'],
+                    'promedio_ausencias' => $promedios['ausencias'],
+                    'estudiantes_en_riesgo' => $promedios['estudiantes_en_riesgo']
+                ],
+                'estudiantes' => $estadisticasEstudiantes
             ]
         ], 200);
     }

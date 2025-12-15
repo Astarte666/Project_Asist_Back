@@ -88,12 +88,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:administrador|estudiante|profesor')->group(function () {
         Route::get('/asistencias', [AsistenciasController::class, 'index']);
         Route::get('/asistencias/estadisticas/{user_id}/{materia_id}', [AsistenciasController::class, 'estadisticasAlumno']);
+        Route::get('/asistencias/estadisticas-generales/{user_id}', [AsistenciasController::class, 'estadisticasGeneralesAlumno']);
+        Route::get('/asistencias/estadisticas-materia/{materia_id}', [AsistenciasController::class, 'estadisticasMateria']);
     });
     Route::middleware('role:administrador')->group(function () {
         Route::get('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'prepararTomarAsistencia']);
         Route::post('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'guardarAsistencias']);
         Route::put('/asistencias/{id}', [AsistenciasController::class, 'update']);
         Route::delete('/asistencias/{id}', [AsistenciasController::class, 'destroy']);
+
         
     });
 
