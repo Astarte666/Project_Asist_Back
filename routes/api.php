@@ -66,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/mis-inscripciones', [InscripcionesController::class, 'misInscripciones']);
         Route::post('inscripcion-materias', [InscripcionMateriaController::class, 'store']);
         Route::post('/inscripciones', [InscripcionesController::class, 'store']);
+        Route::delete('/desinscribir/{materia_id}', [InscripcionesController::class, 'desinscribir']);
 
     });
     Route::middleware('role:administrador')->group(function () {

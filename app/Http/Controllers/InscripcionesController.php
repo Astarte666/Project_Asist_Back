@@ -151,4 +151,15 @@ class InscripcionesController extends Controller
         $inscripciones->delete();
         return response()->json(['message' => 'Inscripcion eliminada correctamente'], 200);
     }
+
+    public function desinscribir(Request $request, $materia_id) 
+    {
+
+        $user = $request->user();
+        $user->materias()->detach($materia_id); 
+        return response()->json([
+            'success' => true,
+            'message' => 'Desinscripción completada correctamente.'
+        ], 200);
+    }
 }
