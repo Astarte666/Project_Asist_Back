@@ -53,7 +53,7 @@ class AsistenciasController extends Controller
 
         $clase = Clases::with('materia.carrera')->findOrFail($clase_id);
         
-        if ($user->hasRole('profesor')) {
+/*         if ($user->hasRole('profesor')) {
             $estaAsignado = $user->materias()->where('materias.id', $clase->materia->id)->exists();
             if (!$estaAsignado) {
                 return response()->json([
@@ -61,7 +61,7 @@ class AsistenciasController extends Controller
                     'message' => 'No tienes permiso para tomar asistencia en esta materia.'
                 ], 403);
             }
-        }
+        } */
 
         $alumnos = $clase->materia->estudiantes()
             ->select('users.id', 'userNombre', 'userApellido', 'userDocumento')
@@ -114,7 +114,7 @@ class AsistenciasController extends Controller
 
         $clase = Clases::with('materia')->findOrFail($clase_id);
 
-        if ($user->hasRole('profesor')) {
+/*         if ($user->hasRole('profesor')) {
             $estaAsignado = $user->materias()->where('materias.id', $clase->materia->id)->exists();
             if (!$estaAsignado) {
                 return response()->json([
@@ -122,7 +122,7 @@ class AsistenciasController extends Controller
                     'message' => 'No tienes permiso para tomar asistencia en esta materia.'
                 ], 403);
             }
-        }
+        } */
 
         $request->validate([
             'asistencias' => 'required|array',
@@ -237,8 +237,6 @@ class AsistenciasController extends Controller
         ], 200);
     }
 
-    // En AsistenciasController.php
-
     public function estadisticasAlumno($user_id, $materia_id)
     {
         $user = request()->user();
@@ -251,11 +249,8 @@ class AsistenciasController extends Controller
         }
 
         $materia = Materias::findOrFail($materia_id);
-        $alumno = User::findOrFail($user_id);
-        
+        $alumno = User::findOrFail($user_id);      
         $totalClases = Clases::where('materias_id', $materia_id)->count();
-        
-        // Asistencias del alumno en esa materia
         $asistencias = asistencias::whereHas('clase', function($q) use ($materia_id) {
             $q->where('materias_id', $materia_id);
         })->where('user_id', $user_id)->get();
@@ -328,8 +323,6 @@ class AsistenciasController extends Controller
         }
 
         $alumno = User::findOrFail($user_id);
-        
-        // Materias en las que está inscripto
         $materias = $alumno->materias()->with('carrera')->get();
         
         $estadisticasPorMateria = [];

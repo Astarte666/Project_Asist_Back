@@ -63,11 +63,25 @@ class AuthController extends Controller
     {
         $pendientes = User::where('userAceptado', 0)
             ->whereHas('roles', function ($q) {
-                $q->where('name', 'estudiante'); 
+                $q->whereIn('name', ['estudiante', 'profesor']); 
             })
+            ->with('roles')
             ->select('id', 'userNombre', 'userApellido', 'email', 'userDocumento', 'userDomicilio', 'userTelefono', 'created_at')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'userNombre' => $user->userNombre,
+                'userApellido' => $user->userApellido,
+                'email' => $user->email,
+                'userDocumento' => $user->userDocumento,
+                'userDomicilio' => $user->userDomicilio,
+                'userTelefono' => $user->userTelefono,
+                'created_at' => $user->created_at,
+                'rol' => $user->roles->pluck('name')->first() ?? 'Sin rol',
+            ];
+        });
 
         return response()->json($pendientes);
     }

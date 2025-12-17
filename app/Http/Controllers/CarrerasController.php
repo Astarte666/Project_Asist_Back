@@ -205,7 +205,7 @@ class CarrerasController extends Controller
         try {
             $validated = $request->validate([
                 'carreNombre' => 'required|string|max:255',
-                'materias' => 'required|array',
+                'materias' => 'nullable|array',
                 'materias.*' => 'exists:materias,id'
             ]);
 

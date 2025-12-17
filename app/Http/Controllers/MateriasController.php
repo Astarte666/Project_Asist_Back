@@ -142,6 +142,14 @@ class MateriasController extends Controller
         }
     }
 
+    public function asignarProfesor(Request $request, $materia_id)
+    {
+        $request->validate(['profesor_id' => 'required|exists:users,id']);
+        $materia = Materias::findOrFail($materia_id);
+        $materia->profesores()->syncWithoutDetaching($request->profesor_id);
+        return response()->json(['message' => 'Profesor asignado']);
+    }
+
     /**
      * Display the specified resource.
      */

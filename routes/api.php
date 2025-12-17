@@ -49,9 +49,10 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     //MATERIAS
-    Route::middleware('role:administrador')->group(function () {
+    Route::middleware('role:administrador|profesor')->group(function () {
         Route::get('/materias/{id}/estudiantes', [MateriasController::class, 'estudiantesInscriptos']);
         Route::post('/materias', [MateriasController::class, 'store']);
+        Route::post('/materias/{id}/asignar-profesor', [MateriasController::class, 'asignarProfesor']);
         Route::put('/materias/{id}', [MateriasController::class, 'update']);
         Route::delete('/materias/{id}', [MateriasController::class, 'destroy']);
     });
@@ -78,7 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:administrador|estudiante|profesor')->group(function () {
         Route::get('/clases', [ClasesController::class, 'index']);
     });
-    Route::middleware('role:administrador')->group(function () {
+    Route::middleware('role:administrador|profesor')->group(function () {
         Route::get('/clases/{id}', [ClasesController::class, 'show']);
         Route::post('/clases', [ClasesController::class, 'store']);
         Route::delete('/clases/{id}', [ClasesController::class, 'destroy']);
@@ -92,7 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/asistencias/estadisticas-generales/{user_id}', [AsistenciasController::class, 'estadisticasGeneralesAlumno']);
         Route::get('/asistencias/estadisticas-materia/{materia_id}', [AsistenciasController::class, 'estadisticasMateria']);
     });
-    Route::middleware('role:administrador')->group(function () {
+    Route::middleware('role:administrador|profesor')->group(function () {
         Route::get('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'prepararTomarAsistencia']);
         Route::post('/asistencias/clase/{clase_id}', [AsistenciasController::class, 'guardarAsistencias']);
         Route::put('/asistencias/{id}', [AsistenciasController::class, 'update']);
@@ -104,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //GESTIÓN DE REGISTRO
     Route::middleware(['role:administrador'])->group(function () {
     Route::post('/gestion/usuarios/{id}/aceptar', [AuthController::class, 'aceptarUsuario']);
-    });
     Route::get('/gestion/usuarios-pendientes', [AuthController::class, 'usuariosPendientes']);
+    });
+    
 });
